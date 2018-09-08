@@ -1,1 +1,0 @@
-/usr/bin/c++  -g   CMakeFiles/block_matrix_multiplication.dir/main.cpp.o CMakeFiles/block_matrix_multiplication.dir/home/alexey/programming/block_matrix_multiplication/libs/block_matrix.cpp.o  -o block_matrix_multiplication 
