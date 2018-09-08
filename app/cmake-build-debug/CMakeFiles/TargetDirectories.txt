@@ -1,0 +1,3 @@
+/home/alexey/programming/block_matrix_multiplication/app/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/alexey/programming/block_matrix_multiplication/app/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/alexey/programming/block_matrix_multiplication/app/cmake-build-debug/CMakeFiles/block_matrix_multiplication.dir

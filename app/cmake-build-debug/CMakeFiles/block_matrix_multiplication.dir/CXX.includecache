@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/alexey/programming/block_matrix_multiplication/app/main.cpp
+iostream
+-
+../libs/block_matrix.h
+/home/alexey/programming/block_matrix_multiplication/libs/block_matrix.h
+
+/home/alexey/programming/block_matrix_multiplication/libs/block_matrix.cpp
+block_matrix.h
+/home/alexey/programming/block_matrix_multiplication/libs/block_matrix.h
+
+/home/alexey/programming/block_matrix_multiplication/libs/block_matrix.h
+
