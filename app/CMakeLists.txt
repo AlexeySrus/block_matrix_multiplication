@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 project(block_matrix_multiplication)
 
-set(CMAKE_C_COMPILER /usr/bin/clang)
-set(CMAKE_CXX_COMPILER /usr/bin/clang++)
-
 set(CMAKE_CXX_STANDARD 14)
 
 set(SOURCE_FILES main.cpp ../libs/block.cpp ../libs/block.h)
