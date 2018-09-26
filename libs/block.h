@@ -30,10 +30,12 @@ public:
     Block<block_size, T> operator=(const Block<block_size, T>&);
 
     template <unsigned long _block_size, typename _T>
-    friend Block<_block_size, _T> operator+(const Block<_block_size, _T>&, const Block<_block_size, _T>&);
+    friend Block<_block_size, _T> operator+(const Block<_block_size, _T>&,
+                                            const Block<_block_size, _T>&);
 
     template <unsigned long _block_size, typename _T>
-    friend Block<_block_size, _T> operator*(const Block<_block_size, _T>&, const Block<_block_size, _T>&);
+    friend Block<_block_size, _T> operator*(const Block<_block_size, _T>&,
+                                            const Block<_block_size, _T>&);
 
     void zero();
 };
@@ -94,7 +96,8 @@ Block<block_size, T> Block<block_size, T>::operator=(const Block<block_size, T> 
 
 
 template<unsigned long _block_size, typename _T>
-Block<_block_size, _T> operator+(const Block<_block_size, _T> & A, const Block<_block_size, _T> & B) {
+Block<_block_size, _T> operator+(const Block<_block_size, _T> & A,
+                                 const Block<_block_size, _T> & B) {
     auto res = A;
     for (auto i = 0; i < _block_size*_block_size; ++i)
         res.data[i] += B.data[i];
@@ -102,7 +105,8 @@ Block<_block_size, _T> operator+(const Block<_block_size, _T> & A, const Block<_
 }
 
 template<unsigned long _block_size, typename _T>
-Block<_block_size, _T> operator*(const Block<_block_size, _T> & A, const Block<_block_size, _T> & B) {
+Block<_block_size, _T> operator*(const Block<_block_size, _T> & A,
+                                 const Block<_block_size, _T> & B) {
     Block<_block_size, _T> res;
     res.zero();
 
