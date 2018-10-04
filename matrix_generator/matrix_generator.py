@@ -9,7 +9,7 @@ def app_arguments():
                            help='Matrix size.')
     args.add_argument('--fpath', required=True,
                       type=str,
-                      help='File name which contain matrix.')
+                      help='Folder path which contain matrix created file.')
     args.add_argument('--max-value', required=False,
                       type=float, default=1000)
     return args.parse_args()
