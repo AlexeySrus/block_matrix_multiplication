@@ -7,7 +7,7 @@ def app_arguments():
     args.add_argument('--n', required=True,
                            type=int,
                            help='Matrix size.')
-    args.add_argument('--fname', required=True,
+    args.add_argument('--fpath', required=True,
                       type=str,
                       help='File name which contain matrix.')
     args.add_argument('--max-value', required=False,
@@ -18,7 +18,7 @@ def app_arguments():
 def main(args):
     random_matrix = np.random.random((args.n, args.n)) * args.max_value
     random_matrix[np.triu_indices(args.n, 1)] = 0
-    np.savetxt(args.fname, random_matrix)
+    np.savetxt(args.fpath + '/matrix_{}.txt'.format(args.n), random_matrix)
 
 
 if __name__ == "__main__":
