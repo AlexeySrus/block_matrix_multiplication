@@ -15,6 +15,7 @@
 
 template <unsigned long block_size, typename T> class Block{
 private:
+    unsigned long i, j;
     T* data;
 public:
     Block();
@@ -38,6 +39,9 @@ public:
                                             const Block<_block_size, _T>&);
 
     void zero();
+    std::pair<unsigned long, unsigned long> get_shift();
+    void set_shift(const unsigned long, const unsigned long);
+    void set_shift(const std::pair<unsigned long, unsigned long>&);
 };
 
 
@@ -48,6 +52,8 @@ using namespace std;
 template<unsigned long block_size, typename T>
 Block<block_size, T>::Block(){
     this->data = new T[block_size*block_size];
+    i = 0;
+    j = 0;
 }
 
 
@@ -69,6 +75,8 @@ Block<block_size, T>::Block(const std::vector<T> & v): Block(){
 template<unsigned long block_size, typename T>
 Block<block_size, T>::Block(const Block<block_size, T> & B) : Block(){
     memcpy(this->data, B.data, sizeof(T)*block_size*block_size);
+    this->i = B.i;
+    this->j = B.j;
 }
 
 
@@ -121,6 +129,23 @@ Block<_block_size, _T> operator*(const Block<_block_size, _T> & A,
 template<unsigned long block_size, typename T>
 void Block<block_size, T>::zero() {
     memset(this->data, 0, sizeof(T)*block_size*block_size);
+}
+
+template<unsigned long block_size, typename T>
+void Block<block_size, T>::set_shift(const unsigned long i, const unsigned long j) {
+    this->i = i;
+    this->j = j;
+}
+
+template<unsigned long block_size, typename T>
+void Block<block_size, T>::set_shift(const pair<unsigned long, unsigned long> & p) {
+    this->i = p.first;
+    this->j = p.second;
+}
+
+template<unsigned long block_size, typename T>
+pair<unsigned long, unsigned long> Block<block_size, T>::get_shift() {
+    return pair<unsigned long, unsigned long>(this->i, this->j);
 }
 
 #endif //BLOCK_MATRIX_MULTIPLICATION_BLOCK_MATRIX_H

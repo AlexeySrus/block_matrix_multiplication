@@ -3,7 +3,8 @@
 
 #include "block.h"
 
-template <unsigned long block_size, typename T> class Matrix{
+template <unsigned long block_size, typename T>
+class Matrix{
 private:
     vector<Block<block_size, T>> data;
 public:
