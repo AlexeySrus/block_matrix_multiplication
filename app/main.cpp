@@ -14,5 +14,9 @@ int main(int argc, char**argv){
 
     Matrix<5, double> m(1001);
 
+    Block<5, double> a, b(a);
+
+    a = b;
+
     return EXIT_SUCCESS;
 }
