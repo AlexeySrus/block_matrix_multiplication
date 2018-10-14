@@ -12,11 +12,9 @@ using namespace chrono;
 int main(int argc, char**argv){
     auto timer = duration<double>();
 
-    Matrix<5, double> m(1001);
+    Matrix<5, double> m(7);
 
-    Block<5, double> a, b(a);
-
-    a = b;
+    cout << m << endl;
 
     return EXIT_SUCCESS;
 }
