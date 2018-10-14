@@ -1,3 +1,4 @@
 app/cmake-build-debug/
 .idea
 data
+*.log
