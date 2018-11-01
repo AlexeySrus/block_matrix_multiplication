@@ -83,7 +83,14 @@ std::ostream& operator<<(std::ostream & os, const Block<block_size, T> & B) {
 
 template<unsigned long block_size, typename T>
 Block<block_size, T> Block<block_size, T>::operator=(const Block<block_size, T> & B) {
-    return Block<block_size, T>(B.data);
+    if (&B == this)
+        return *this;
+
+    this->data = B.data;
+    this->i = B.i;
+    this->j = B.j;
+
+    return *this;
 }
 
 

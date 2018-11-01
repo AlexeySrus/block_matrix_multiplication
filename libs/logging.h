@@ -7,10 +7,10 @@
 #include <mutex>
 
 enum LoggingType{
-    INFO,
-    DEBUG,
+    CRITICAL,
     ERROR,
-    CRITICAL
+    INFO,
+    DEBUG
 };
 
 std::string logtype_to_str(LoggingType);
@@ -27,6 +27,7 @@ private:
     void add_log_line(LoggingType, const std::string&);
     void show_log(LoggingType, const std::string&);
 public:
+    Logger();
     explicit Logger(bool);
     explicit Logger(std::ostream&, bool);
     explicit Logger(std::ostream&, const std::string&, bool);
@@ -42,8 +43,6 @@ public:
     void critical(const std::string&);
 
     const std::list<std::pair<LoggingType, std::string>> & get_logging_list();
-
-    void without_saving(const bool);
 };
 
 #endif //BLOCK_MATRIX_MULTIPLICATION_LOGGING_H

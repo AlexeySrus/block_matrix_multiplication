@@ -28,6 +28,9 @@ std::string logtype_to_str(LoggingType logt){
 }
 
 
+Logger::Logger() : out(cout), mode(INFO), save(true) {}
+
+
 Logger::Logger(bool saving) : out(cout), mode(INFO), save(saving) {}
 
 
@@ -64,7 +67,7 @@ void Logger::add_log_line(LoggingType logt, const std::string & s) {
 void Logger::show_log(LoggingType logt, const std::string & s) {
     this->mut.lock();
     if (logt <= this->mode)
-        this->out << this->name + logtype_to_str(logt) + ":" + s;
+        this->out << this->name + logtype_to_str(logt) + ":" + s << endl;
     this->mut.unlock();
 }
 
