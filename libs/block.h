@@ -17,25 +17,32 @@ template <unsigned long block_size, typename T> class Block{
 private:
     unsigned long i, j;
     T* data;
+    bool used_flag;
 public:
     Block();
-    Block(T*);
-    Block(const Block<block_size, T>&);
+    Block(T *);
+    Block(const Block<block_size, T> &);
+    Block(T *, unsigned long, unsigned long);
 
     ~Block();
 
     template <unsigned long _block_size, typename _T>
-    friend std::ostream& operator<<(std::ostream&, const Block<_block_size, _T>&);
+    friend std::ostream& operator<<(std::ostream&, const Block<_block_size, _T> &);
 
-    Block<block_size, T> operator=(const Block<block_size, T>&);
+    Block<block_size, T> operator=(const Block<block_size, T> &);
 
-    void multiply(const Block<block_size, T>&, Block<block_size, T>&);
-    void add(const Block<block_size, T>&, Block<block_size, T>&);
+    void multiply(const Block<block_size, T> &, Block<block_size, T> &);
+    void add(const Block<block_size, T> &, Block<block_size, T> &);
 
     void zero();
-    std::pair<unsigned long, unsigned long> get_shift();
+    const std::pair<unsigned long, unsigned long> get_shift();
     void set_shift(unsigned long, unsigned long);
-    void set_shift(const std::pair<unsigned long, unsigned long>&);
+    void set_shift(const std::pair<unsigned long, unsigned long> &);
+
+    void write_by_matrix(const std::vector<std::vector<T>> &);
+    void set_data(T *);
+    bool used();
+    void set_used(bool);
 };
 
 
@@ -46,11 +53,12 @@ template<unsigned long block_size, typename T>
 Block<block_size, T>::Block(){
     i = 0;
     j = 0;
+    this->used_flag = true;
 }
 
 
 template<unsigned long block_size, typename T>
-Block<block_size, T>::Block(T* V): Block(){
+Block<block_size, T>::Block(T * V): Block(){
     this->data = V;
 }
 
@@ -64,6 +72,15 @@ Block<block_size, T>::Block(const Block<block_size, T> & B) : Block(){
 
 
 template<unsigned long block_size, typename T>
+Block<block_size, T>::Block(T * V, unsigned long i, unsigned long j) {
+    this->data = V;
+    this->i = i;
+    this->j = j;
+    this->used_flag = true;
+}
+
+
+template<unsigned long block_size, typename T>
 Block<block_size, T>::~Block(){
     this->i = 0;
     this->j = 0;
@@ -72,11 +89,21 @@ Block<block_size, T>::~Block(){
 
 template<unsigned long block_size, typename T>
 std::ostream& operator<<(std::ostream & os, const Block<block_size, T> & B) {
-    for (auto i = 0; i < block_size; ++i) {
-        for (auto j = 0; j < block_size; ++j)
-            os << B.data[i*block_size + j] << ' ';
-        os << endl;
+    if (B.used_flag) {
+        for (auto i = 0; i < block_size; ++i) {
+            for (auto j = 0; j < block_size; ++j)
+                os << B.data[i * block_size + j] << ' ';
+            os << endl;
+        }
     }
+    else{
+        for (auto i = 0; i < block_size; ++i) {
+            for (auto j = 0; j < block_size; ++j)
+                os << 0 << ' ';
+            os << endl;
+        }
+    }
+
     return os;
 }
 
@@ -89,6 +116,7 @@ Block<block_size, T> Block<block_size, T>::operator=(const Block<block_size, T> 
     this->data = B.data;
     this->i = B.i;
     this->j = B.j;
+    this->used_flag = B.used_flag;
 
     return *this;
 }
@@ -101,9 +129,9 @@ void Block<block_size, T>::zero() {
 
 
 template<unsigned long block_size, typename T>
-void Block<block_size, T>::set_shift(const unsigned long i, const unsigned long j) {
-    this->i = i;
-    this->j = j;
+void Block<block_size, T>::set_shift(const unsigned long _i, const unsigned long _j) {
+    this->i = _i;
+    this->j = _j;
 }
 
 
@@ -115,7 +143,7 @@ void Block<block_size, T>::set_shift(const pair<unsigned long, unsigned long> & 
 
 
 template<unsigned long block_size, typename T>
-pair<unsigned long, unsigned long> Block<block_size, T>::get_shift() {
+const pair<unsigned long, unsigned long> Block<block_size, T>::get_shift() {
     return pair<unsigned long, unsigned long>(this->i, this->j);
 }
 
@@ -136,6 +164,31 @@ void Block<block_size, T>::add(const Block<block_size, T> & B, Block<block_size,
     for (auto i = 0; i < block_size; ++i)
         for (auto j = 0; j < block_size; ++j)
             res.data[i*block_size + j] = this->data[i*block_size + j] + B.data[i*block_size + j];
+}
+
+
+template<unsigned long block_size, typename T>
+void Block<block_size, T>::write_by_matrix(const vector<vector<T>> & matrix) {
+    for (auto _i = 0; _i < block_size; ++_i)
+        for (auto _j = 0; _j < block_size; ++_j)
+            this->data[_i*block_size + _j] = matrix[i + _i][j + _j];
+}
+
+
+template<unsigned long block_size, typename T>
+bool Block<block_size, T>::used() {
+    return this->used_flag;
+}
+
+
+template<unsigned long block_size, typename T>
+void Block<block_size, T>::set_data(T * V) {
+    this->data = V;
+}
+
+template<unsigned long block_size, typename T>
+void Block<block_size, T>::set_used(bool flag) {
+    this->used_flag = flag;
 }
 
 #endif //BLOCK_MATRIX_MULTIPLICATION_BLOCK_MATRIX_H

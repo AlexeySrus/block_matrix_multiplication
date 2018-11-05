@@ -8,15 +8,16 @@
 using namespace std;
 using namespace chrono;
 
-
 int main(int argc, char**argv){
     auto timer = duration<double>();
 
-    Matrix<5, double> m("../../data/matrix_7.txt");
-
-    m.zero();
+    auto start_time = steady_clock::now();
+    Matrix<2, double> m("../../data/matrix_4.txt", BLOCK_LINE);
+    timer = steady_clock::now() - start_time;
 
     cout << m << endl;
+
+    cout << "Load matrix time: " << timer.count() << " sec." << endl;
 
     return EXIT_SUCCESS;
 }
