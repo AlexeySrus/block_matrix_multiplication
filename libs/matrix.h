@@ -24,6 +24,7 @@ private:
     T* data;
     std::vector<Block<block_size, T>> blocks;
     unsigned long n;
+    unsigned long used_blocks_count;
     StorageType load_type;
     Logger log;
 
@@ -33,7 +34,7 @@ public:
     Matrix();
     Matrix(const std::string&, StorageType);
     Matrix(unsigned long);
-    Matrix(const Matrix<block_size, T>&);
+    Matrix(const Matrix<block_size, T> &);
     ~Matrix();
 
     template <unsigned long _block_size, typename _T>
@@ -107,7 +108,9 @@ Matrix<block_size, T>::Matrix(const std::string & fname, StorageType _load_type)
             ++zero_blocks_count;
         }
 
-    this->data = new T[(this->blocks.size() - zero_blocks_count)*block_size*block_size];
+    this->used_blocks_count = this->blocks.size() - zero_blocks_count;
+
+    this->data = new T[this->used_blocks_count*block_size*block_size];
 
     unsigned long tmp_shift = 0;
     for (auto i = 0; i < this->blocks.size(); ++i)
@@ -121,7 +124,7 @@ Matrix<block_size, T>::Matrix(const std::string & fname, StorageType _load_type)
 
 template<unsigned long block_size, typename T>
 Matrix<block_size, T>::Matrix(const Matrix<block_size, T> & mat) : Matrix() {
-    std::memcpy(this->data, mat.data, sizeof(T)*block_size*block_size*this->blocks.size());
+    std::memcpy(this->data, mat.data, sizeof(T)*block_size*block_size*this->used_blocks_count);
     this->n = mat.n;
     this->blocks = mat.blocks;
 }
@@ -144,7 +147,7 @@ std::ostream &operator<<(std::ostream & os, const Matrix<block_size, T> & mat) {
 
 template<unsigned long block_size, typename T>
 void Matrix<block_size, T>::zero() {
-    memset(this->data, 0, sizeof(T)*block_size*block_size*this->blocks.size());
+    memset(this->data, 0, sizeof(T)*block_size*block_size*this->used_blocks_count);
 }
 
 template<unsigned long block_size, typename T>
