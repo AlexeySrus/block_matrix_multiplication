@@ -104,7 +104,7 @@ Matrix<block_size, T>::Matrix(const std::string & fname, StorageType _load_type)
 
     for (auto & block : this->blocks)
         if (this->check_zero_block(block, tmp_mat)) {
-            block.set_used(false);
+            block.set_type(NON_USED);
             ++zero_blocks_count;
         }
 

@@ -13,11 +13,18 @@
 #define INCORRECT_BLOCK_SIZE 1001
 
 
+enum BlockType{
+    STANDARD,
+    NON_USED,
+    SYMMETRIC
+};
+
+
 template <unsigned long block_size, typename T> class Block{
 private:
     unsigned long i, j;
     T* data;
-    bool used_flag;
+    BlockType btype;
 public:
     Block();
     Block(T *);
@@ -42,7 +49,7 @@ public:
     void write_by_matrix(const std::vector<std::vector<T>> &);
     void set_data(T *);
     bool used();
-    void set_used(bool);
+    void set_type(BlockType);
 };
 
 
@@ -53,7 +60,7 @@ template<unsigned long block_size, typename T>
 Block<block_size, T>::Block(){
     i = 0;
     j = 0;
-    this->used_flag = true;
+    this->btype = STANDARD;
 }
 
 
@@ -76,7 +83,7 @@ Block<block_size, T>::Block(T * V, unsigned long i, unsigned long j) {
     this->data = V;
     this->i = i;
     this->j = j;
-    this->used_flag = true;
+    this->btype = STANDARD;
 }
 
 
@@ -89,7 +96,7 @@ Block<block_size, T>::~Block(){
 
 template<unsigned long block_size, typename T>
 std::ostream& operator<<(std::ostream & os, const Block<block_size, T> & B) {
-    if (B.used_flag) {
+    if (B.btype != NON_USED) {
         for (auto i = 0; i < block_size; ++i) {
             for (auto j = 0; j < block_size; ++j)
                 os << B.data[i * block_size + j] << ' ';
@@ -177,7 +184,7 @@ void Block<block_size, T>::write_by_matrix(const vector<vector<T>> & matrix) {
 
 template<unsigned long block_size, typename T>
 bool Block<block_size, T>::used() {
-    return this->used_flag;
+    return this->btype != NON_USED;
 }
 
 
@@ -187,8 +194,8 @@ void Block<block_size, T>::set_data(T * V) {
 }
 
 template<unsigned long block_size, typename T>
-void Block<block_size, T>::set_used(bool flag) {
-    this->used_flag = flag;
+void Block<block_size, T>::set_type(BlockType _type) {
+    this->btype = _type;
 }
 
 #endif //BLOCK_MATRIX_MULTIPLICATION_BLOCK_MATRIX_H
