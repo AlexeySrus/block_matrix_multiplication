@@ -26,7 +26,10 @@ def numpy_matrixes_multiplication(matrixes):
     return res, (finish - start) / (len(matrixes) - 1)
 
 
-def torch_matrixes_multiplication(matrixes, device=torch.device('cpu')):
+def torch_matrixes_multiplication(
+        matrixes,
+        device=torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+):
     matrix_tensors = [
         torch.from_numpy(mat).to(device).float()
         for mat in matrixes
