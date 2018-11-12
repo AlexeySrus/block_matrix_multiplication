@@ -269,7 +269,7 @@ Matrix<block_size, T> operator*(Matrix<block_size, T> & A, Matrix<block_size, T>
         for (auto i = 0; i < blocks_on_line; ++i)
             for (auto j = 0; j < blocks_on_line; ++j)
                 for (auto k = 0; k < blocks_on_line; ++k, ++block_index) {
-                    A.blocks[i*block_index + k].multiply(B.blocks[i*block_index + k],
+                    A.blocks[i*blocks_on_line + k].multiply(B.blocks[j*blocks_on_line + k],
                                                               tmp_block);
                     res.blocks[i * blocks_on_line + j].add(tmp_block,
                                                            res.blocks[i * blocks_on_line + j]);
