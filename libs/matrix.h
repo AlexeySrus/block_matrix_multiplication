@@ -26,13 +26,14 @@ private:
     unsigned long n;
     unsigned long used_blocks_count;
     StorageType load_type;
+    bool symmetric;
     Logger log;
 
     int load_matrix(const std::string&, std::vector<std::vector<T>> &);
     bool check_zero_block(Block<block_size, T> &, const std::vector<std::vector<T>> &);
 public:
     Matrix();
-    Matrix(const std::string&, StorageType);
+    Matrix(const std::string&, StorageType, bool);
     Matrix(unsigned long);
     Matrix(const Matrix<block_size, T> &);
     ~Matrix();
@@ -52,6 +53,7 @@ Matrix<block_size, T>::Matrix(){
     this->log.set_mode(DEBUG);
     this->log.set_name("MatrixClass");
     this->log.info("Logger initialisation");
+    this->symmetric = false;
 };
 
 
@@ -74,7 +76,9 @@ Matrix<block_size, T>::Matrix(unsigned long n) : Matrix() {
 
 
 template<unsigned long block_size, typename T>
-Matrix<block_size, T>::Matrix(const std::string & fname, StorageType _load_type) : Matrix() {
+Matrix<block_size, T>::Matrix(
+        const std::string & fname, StorageType _load_type, bool _symmetric
+        ) : Matrix() {
     vector<vector<T>> tmp_mat;
 
     if (this->load_matrix(fname, tmp_mat) != EXIT_SUCCESS) {
@@ -84,6 +88,7 @@ Matrix<block_size, T>::Matrix(const std::string & fname, StorageType _load_type)
 
     this->n = tmp_mat.size();
     this->load_type = _load_type;
+    this->symmetric = _symmetric;
 
     if (this->n % block_size){
         this->log.critical("Matrix size " + to_string(this->n) + " don't divide on block size " +
@@ -118,6 +123,12 @@ Matrix<block_size, T>::Matrix(const std::string & fname, StorageType _load_type)
             this->blocks[i].set_data(this->data + tmp_shift*block_size*block_size);
             this->blocks[i].write_by_matrix(tmp_mat);
             tmp_shift += 1;
+        }
+
+    if (_symmetric)
+        for (auto i = 0; i < blocks.size(); i += this->n / block_size){
+            this->blocks[i].set_type(SYMMETRIC);
+            this->blocks[i].postprocess();
         }
 }
 

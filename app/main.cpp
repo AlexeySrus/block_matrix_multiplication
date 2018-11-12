@@ -12,7 +12,7 @@ int main(int argc, char**argv){
     auto timer = duration<double>();
 
     auto start_time = steady_clock::now();
-    Matrix<2, double> m("../../data/matrix_4.txt", BLOCK_LINE);
+    Matrix<2, double> m("../../data/matrix_4.txt", BLOCK_LINE, false);
     timer = steady_clock::now() - start_time;
 
     cout << m << endl;
