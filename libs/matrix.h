@@ -25,6 +25,7 @@ private:
     std::vector<Block<block_size, T>> blocks;
     unsigned long n;
     unsigned long used_blocks_count;
+    unsigned long blocks_on_line;
     StorageType load_type;
     bool symmetric;
     Logger log;
@@ -40,6 +41,9 @@ public:
 
     template <unsigned long _block_size, typename _T>
     friend std::ostream& operator<<(std::ostream&, const Matrix<_block_size, _T>&);
+
+    template <unsigned long _block_size, typename _T>
+    friend Matrix<_block_size, _T> operator*(Matrix<_block_size, _T>&, Matrix<_block_size, _T>&);
 
     void zero();
 };
@@ -96,13 +100,16 @@ Matrix<block_size, T>::Matrix(
         return;
     }
 
+    this->blocks_on_line = this->n / block_size;
+    auto blocks_on_line = this->blocks_on_line;
+
     if (_load_type == BLOCK_LINE)
-        for (auto block_i = 0; block_i < this->n / block_size; ++block_i)
-            for (auto block_j = 0; block_j < this->n / block_size; ++block_j)
+        for (auto block_i = 0; block_i < blocks_on_line; ++block_i)
+            for (auto block_j = 0; block_j < blocks_on_line; ++block_j)
                 this->blocks.emplace_back(nullptr, block_i*block_size, block_j*block_size);
     else
-        for (auto block_j = 0; block_j < this->n / block_size; ++block_j)
-            for (auto block_i = 0; block_i < this->n / block_size; ++block_i)
+        for (auto block_j = 0; block_j < blocks_on_line; ++block_j)
+            for (auto block_i = 0; block_i < blocks_on_line; ++block_i)
                 this->blocks.emplace_back(nullptr, block_i*block_size, block_j*block_size);
 
     unsigned long zero_blocks_count = 0;
@@ -125,11 +132,42 @@ Matrix<block_size, T>::Matrix(
             tmp_shift += 1;
         }
 
-    if (_symmetric)
-        for (auto i = 0; i < blocks.size(); i += this->n / block_size){
-            this->blocks[i].set_type(SYMMETRIC);
-            this->blocks[i].postprocess();
+    if (_symmetric) {
+        for (auto i = 0; i < blocks_on_line; ++i) {
+            this->blocks[i*blocks_on_line + i].set_type(SYMMETRIC);
+            this->blocks[i*blocks_on_line + i].postprocess();
         }
+
+        if (_load_type == BLOCK_LINE) {
+            for (auto i = 0; i < blocks.size(); i += blocks_on_line) {
+                this->blocks[i].set_type(SYMMETRIC);
+                this->blocks[i].postprocess();
+            }
+
+            for (auto i = 0; i < blocks_on_line; ++i)
+                for (auto j = i + 1; j < blocks_on_line; ++j) {
+                    if (this->blocks[i * blocks_on_line + j].get_type() != NON_USED) {
+                        this->log.error("Apply symmetric transform to used block");
+                        return;
+                    }
+                    this->blocks[i * blocks_on_line + j].set_type(SYMMETRIC);
+                    this->blocks[i * blocks_on_line + j].set_data(
+                            this->blocks[j * blocks_on_line + i].get_data_pointer());
+                }
+        }
+        else {
+            for (auto j = 0; j < blocks_on_line; ++j)
+                for (auto i = j + 1; i < blocks_on_line; ++i) {
+                    if (this->blocks[i * blocks_on_line + j].get_type() != NON_USED) {
+                        this->log.error("Apply symmetric transform to used block");
+                        return;
+                    }
+                    this->blocks[i * blocks_on_line + j].set_type(SYMMETRIC);
+                    this->blocks[i * blocks_on_line + j].set_data(
+                            this->blocks[j * blocks_on_line + i].get_data_pointer());
+                }
+        }
+    }
 }
 
 
@@ -213,6 +251,31 @@ bool Matrix<block_size, T>::check_zero_block(
             if (abs(matrix[block_i + i][block_j + j]) >= EPS)
                 return false;
     return true;
+}
+
+
+template<unsigned long block_size, typename T>
+Matrix<block_size, T> operator*(Matrix<block_size, T> & A, Matrix<block_size, T> & B) {
+    auto res = Matrix<block_size, T>(A.n);
+    res.zero();
+
+    auto * tmp_data = new T[block_size*block_size];
+    auto tmp_block = Block<block_size, T>(tmp_data);
+
+    auto blocks_on_line = A.blocks_on_line;
+    unsigned long block_index = 0;
+
+    if (A.load_type == BLOCK_LINE and B.load_type == BLOCK_COLUMN)
+        for (auto i = 0; i < blocks_on_line; ++i)
+            for (auto j = 0; j < blocks_on_line; ++j)
+                for (auto k = 0; k < blocks_on_line; ++k, ++block_index) {
+                    A.blocks[i*block_index + k].multiply(B.blocks[i*block_index + k],
+                                                              tmp_block);
+                    res.blocks[i * blocks_on_line + j].add(tmp_block,
+                                                           res.blocks[i * blocks_on_line + j]);
+                }
+
+    return res;
 }
 
 #endif //BLOCK_MATRIX_MULTIPLICATION_MATRIX_H
