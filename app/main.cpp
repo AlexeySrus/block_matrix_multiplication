@@ -12,8 +12,8 @@ int main(int argc, char**argv){
     auto timer = duration<double>();
 
     auto start_time = steady_clock::now();
-    Matrix<32, double> m("../../data/matrix1.txt", BLOCK_LINE, false);
-    Matrix<32, double> m2("../../data/matrix2.txt", BLOCK_COLUMN, false);
+    Matrix<2, double> m("../../data/matrix_4.txt", BLOCK_LINE, false);
+    Matrix<2, double> m2("../../data/matrix_4.txt", BLOCK_COLUMN, false);
     timer = steady_clock::now() - start_time;
 
     cout << "Load matrix time: " << timer.count() / 2 << " sec." << endl;
@@ -26,7 +26,7 @@ int main(int argc, char**argv){
 
     cout << "Matrixes multiplication time: " << timer.count() << " sec." << endl;
 
-    //cout << a << endl;
+    cout << a << endl;
 
     return EXIT_SUCCESS;
 }

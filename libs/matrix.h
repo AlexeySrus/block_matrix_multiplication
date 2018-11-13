@@ -196,7 +196,9 @@ std::ostream &operator<<(std::ostream & os, const Matrix<block_size, T> & mat) {
 
 template<unsigned long block_size, typename T>
 void Matrix<block_size, T>::zero() {
-    memset(this->data, 0, sizeof(T)*block_size*block_size*this->used_blocks_count);
+    //memset(this->data, 0, sizeof(T)*block_size*block_size*this->used_blocks_count);
+    for (auto & b : this->blocks)
+        b.zero();
 }
 
 template<unsigned long block_size, typename T>
@@ -268,7 +270,7 @@ Matrix<block_size, T> operator*(Matrix<block_size, T> & A, Matrix<block_size, T>
     if (A.load_type == BLOCK_LINE and B.load_type == BLOCK_COLUMN)
         for (auto i = 0; i < blocks_on_line; ++i)
             for (auto j = 0; j < blocks_on_line; ++j)
-                for (auto k = 0; k < blocks_on_line; ++k, ++block_index) {
+                for (auto k = 0; k < blocks_on_line; ++k) {
                     A.blocks[i*blocks_on_line + k].multiply(B.blocks[j*blocks_on_line + k],
                                                               tmp_block);
                     res.blocks[i * blocks_on_line + j].add(tmp_block,

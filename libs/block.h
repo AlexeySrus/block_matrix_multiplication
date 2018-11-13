@@ -142,7 +142,11 @@ Block<block_size, T> Block<block_size, T>::operator=(const Block<block_size, T> 
 
 template<unsigned long block_size, typename T>
 void Block<block_size, T>::zero() {
-    memset(this->data, 0, sizeof(T)*block_size*block_size);
+    if (this->btype == NON_USED)
+        return;
+    //memset(this->data, 0, sizeof(T)*block_size*block_size);
+    for (auto i = 0; i < block_size*block_size; ++i)
+        this->data[i] = 0;
 }
 
 
