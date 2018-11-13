@@ -226,7 +226,6 @@ int Block<block_size, T>::add(Block<block_size, T> & B, Block<block_size, T> & r
         return EXIT_SUCCESS;
     }
 
-    
     if (this->btype == STANDARD and B.get_type() == STANDARD)
 #ifdef PARALLEL
 #ifdef OPERATION_PARALLEL
@@ -238,9 +237,11 @@ int Block<block_size, T>::add(Block<block_size, T> & B, Block<block_size, T> & r
                 res.data[i*block_size + j] = this->data[i*block_size + j] + B.data[i*block_size + j];
     else if (this->btype == STANDARD and B.btype == SYMMETRIC)
 #ifdef PARALLEL
+
 #ifdef OPERATION_PARALLEL
 #pragma omp parallel for
 #endif
+        
 #endif
         for (auto i = 0; i < block_size; ++i)
             for (auto j = 0; j < block_size; ++j)
