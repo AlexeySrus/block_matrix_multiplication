@@ -5,20 +5,27 @@
 #include <chrono>
 #include <fstream>
 
+#define BLOCK_SIZE 24
+#define DATA_TYPE double
+
 using namespace std;
 using namespace chrono;
 
 int main(int argc, char**argv){
+    if (argc < 4){
+        cout << "Need 3 arguments, but input: " << argc - 1 << endl;
+        cout << "Example run:" << endl;
+        cout << argv[0] << "path_to matrix1 path_to_matrix2 path_to_result_matrix" << endl;
+    }
+
     auto timer = duration<double>();
 
     auto start_time = steady_clock::now();
-    Matrix<2, double> m("../../data/matrix_4.txt", BLOCK_LINE, false);
-    Matrix<2, double> m2("../../data/matrix_4.txt", BLOCK_COLUMN, false);
+    Matrix<BLOCK_SIZE, DATA_TYPE> m(argv[1], BLOCK_LINE, false);
+    Matrix<BLOCK_SIZE, DATA_TYPE> m2(argv[2], BLOCK_COLUMN, false);
     timer = steady_clock::now() - start_time;
 
-    cout << "Load matrix time: " << timer.count() / 2 << " sec." << endl;
-
-    //cout << m << endl;
+    cout << "Average loading matrix time: " << timer.count() / 2 << " sec." << endl;
 
     start_time = steady_clock::now();
     auto a = m*m2;
@@ -26,9 +33,7 @@ int main(int argc, char**argv){
 
     cout << "Matrixes multiplication time: " << timer.count() << " sec." << endl;
 
-    cout << a << endl;
-
-    a.savetxt("../../data/matrix_4_res.txt");
+    a.savetxt(argv[3]);
 
     return EXIT_SUCCESS;
 }
