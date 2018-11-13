@@ -46,6 +46,8 @@ public:
     friend Matrix<_block_size, _T> operator*(Matrix<_block_size, _T>&, Matrix<_block_size, _T>&);
 
     void zero();
+
+    int savetxt(const std::string &);
 };
 
 
@@ -69,6 +71,8 @@ Matrix<block_size, T>::Matrix(unsigned long n) : Matrix() {
             + (this->n * this->n % (block_size * block_size) ? 1 : 0);
 
     this->data = new T[blocks_count*block_size*block_size];
+
+    this->blocks_on_line = this->n / block_size;
 
     this->blocks.resize(blocks_count);
 
@@ -267,17 +271,46 @@ Matrix<block_size, T> operator*(Matrix<block_size, T> & A, Matrix<block_size, T>
     auto blocks_on_line = A.blocks_on_line;
     unsigned long block_index = 0;
 
-    if (A.load_type == BLOCK_LINE and B.load_type == BLOCK_COLUMN)
+    if (A.load_type == BLOCK_LINE and B.load_type == BLOCK_COLUMN) {
         for (auto i = 0; i < blocks_on_line; ++i)
             for (auto j = 0; j < blocks_on_line; ++j)
                 for (auto k = 0; k < blocks_on_line; ++k) {
-                    A.blocks[i*blocks_on_line + k].multiply(B.blocks[j*blocks_on_line + k],
+                    A.blocks[i * blocks_on_line + k].multiply(B.blocks[j * blocks_on_line + k],
                                                               tmp_block);
                     res.blocks[i * blocks_on_line + j].add(tmp_block,
                                                            res.blocks[i * blocks_on_line + j]);
                 }
 
+        res.load_type = BLOCK_LINE;
+    }
+
     return res;
+}
+
+template<unsigned long block_size, typename T>
+int Matrix<block_size, T>::savetxt(const std::string & fname) {
+    ofstream mat_file(fname);
+
+    if (!mat_file)
+        return EXIT_FAILURE;
+
+    if (this->load_type == BLOCK_LINE) {
+
+        for (auto i = 0; i < this->blocks_on_line; ++i)
+            for (auto block_line = 0; block_line < block_size; ++block_line) {
+                for (auto j = 0; j < this->blocks_on_line; ++j)
+                    for (auto block_column = 0; block_column < block_size; ++block_column)
+                        mat_file << this->blocks[i * blocks_on_line + j].get_data_pointer()[
+                                block_line * block_size + block_column] << " ";
+
+                mat_file << endl;
+            }
+
+    }
+
+    mat_file.close();
+
+    return EXIT_SUCCESS;
 }
 
 #endif //BLOCK_MATRIX_MULTIPLICATION_MATRIX_H

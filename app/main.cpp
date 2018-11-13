@@ -28,5 +28,7 @@ int main(int argc, char**argv){
 
     cout << a << endl;
 
+    a.savetxt("../../data/matrix_4_res.txt");
+
     return EXIT_SUCCESS;
 }
