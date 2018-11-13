@@ -226,6 +226,7 @@ int Block<block_size, T>::add(Block<block_size, T> & B, Block<block_size, T> & r
         return EXIT_SUCCESS;
     }
 
+    
     if (this->btype == STANDARD and B.get_type() == STANDARD)
 #ifdef PARALLEL
 #ifdef OPERATION_PARALLEL
