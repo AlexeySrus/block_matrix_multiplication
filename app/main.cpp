@@ -4,10 +4,14 @@
 #include "../libs/logging.h"
 #include <chrono>
 #include <fstream>
-#include "config.h"
+#include "../configuration/config.h"
 
 using namespace std;
 using namespace chrono;
+
+double tflops_by_time(const double time, const unsigned int n){
+    return static_cast<double>(n*n*n) / time / 1E+12;
+}
 
 int main(int argc, char**argv){
     if (argc < 4){
@@ -20,7 +24,7 @@ int main(int argc, char**argv){
 
     auto start_time = steady_clock::now();
     Matrix<BLOCK_SIZE, DATA_TYPE> m(argv[1], BLOCK_LINE, false);
-    Matrix<BLOCK_SIZE, DATA_TYPE> m2(argv[2], BLOCK_COLUMN, false);
+    Matrix<BLOCK_SIZE, DATA_TYPE> m2(argv[2], BLOCK_COLUMN, true);
     timer = steady_clock::now() - start_time;
 
     cout << "Average loading matrix time: " << timer.count() / 2 << " sec." << endl;
@@ -30,6 +34,8 @@ int main(int argc, char**argv){
     timer = steady_clock::now() - start_time;
 
     cout << "Matrixes multiplication time: " << timer.count() << " sec." << endl;
+
+    cout << "TFLOPS: " << tflops_by_time(timer.count(), a.get_size()) << endl;
 
     a.savetxt(argv[3]);
 

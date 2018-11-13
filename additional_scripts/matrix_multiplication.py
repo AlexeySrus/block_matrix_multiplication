@@ -45,6 +45,10 @@ def torch_matrixes_multiplication(
     return res.cpu().numpy(), (finish - start) / (len(matrixes) - 1)
 
 
+def tflops_by_time(time, n):
+    return (n ** 3) / time / 1E+12
+
+
 def main(args):
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
@@ -58,6 +62,8 @@ def main(args):
         matrixes.append(np.loadtxt(path))
     finish = time.time()
 
+    n = len(matrixes[0])
+
     logger.info('Average loading time of one matrix: {} sec'.format(
         (finish - start) / len(matrixes))
     )
@@ -68,11 +74,15 @@ def main(args):
         numpy_time
     ))
 
+    logger.info('CPU TFLOPS: {}'.format(tflops_by_time(numpy_time, n)))
+
     _, pytorch_time = torch_matrixes_multiplication(matrixes)
 
     logger.info('Average matrix multiplication GPU time: {} sec'.format(
         pytorch_time
     ))
+
+    logger.info('GPU TFLOPS: {}'.format(tflops_by_time(pytorch_time, n)))
 
 
 if __name__ == "__main__":

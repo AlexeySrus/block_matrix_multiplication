@@ -1,10 +1,16 @@
 #ifndef BLOCK_MATRIX_MULTIPLICATION_BLOCK_MATRIX_H
 #define BLOCK_MATRIX_MULTIPLICATION_BLOCK_MATRIX_H
 
+#include "../configuration/config.h"
+
 #include <vector>
 #include <iostream>
 #include <cstdint>
 #include <cstring>
+
+#ifdef PARALLEL
+#include<omp.h>
+#endif
 
 /*
  * Exceptions block
@@ -221,14 +227,29 @@ int Block<block_size, T>::add(Block<block_size, T> & B, Block<block_size, T> & r
     }
 
     if (this->btype == STANDARD and B.get_type() == STANDARD)
+#ifdef PARALLEL
+#ifdef OPERATION_PARALLEL
+#pragma omp parallel for
+#endif
+#endif
         for (auto i = 0; i < block_size; ++i)
             for (auto j = 0; j < block_size; ++j)
                 res.data[i*block_size + j] = this->data[i*block_size + j] + B.data[i*block_size + j];
     else if (this->btype == STANDARD and B.btype == SYMMETRIC)
+#ifdef PARALLEL
+#ifdef OPERATION_PARALLEL
+#pragma omp parallel for
+#endif
+#endif
         for (auto i = 0; i < block_size; ++i)
             for (auto j = 0; j < block_size; ++j)
                 res.data[i*block_size + j] = this->data[i*block_size + j] + B.data[j*block_size + i];
     else if (this->btype == SYMMETRIC and B.get_type() == STANDARD)
+#ifdef PARALLEL
+#ifdef OPERATION_PARALLEL
+#pragma omp parallel for
+#endif
+#endif
         for (auto i = 0; i < block_size; ++i)
             for (auto j = 0; j < block_size; ++j)
                 res.data[i*block_size + j] = this->data[j*block_size + i] + B.data[i*block_size + j];

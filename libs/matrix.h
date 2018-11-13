@@ -1,6 +1,8 @@
 #ifndef BLOCK_MATRIX_MULTIPLICATION_MATRIX_H
 #define BLOCK_MATRIX_MULTIPLICATION_MATRIX_H
 
+#include "../configuration/config.h"
+
 #include "block.h"
 #include "logging.h"
 
@@ -8,7 +10,10 @@
 #include <string>
 #include <fstream>
 #include <cmath>
-#include <omp.h>
+
+#ifdef PARALLEL
+#include<omp.h>
+#endif
 
 #define EPS 1E-5
 
@@ -47,6 +52,7 @@ public:
     friend Matrix<_block_size, _T> operator*(Matrix<_block_size, _T>&, Matrix<_block_size, _T>&);
 
     void zero();
+    unsigned int get_size();
 
     int savetxt(const std::string &);
 };
@@ -270,10 +276,8 @@ Matrix<block_size, T> operator*(Matrix<block_size, T> & A, Matrix<block_size, T>
     auto tmp_block = Block<block_size, T>(tmp_data);
 
     auto blocks_on_line = A.blocks_on_line;
-    unsigned long block_index = 0;
 
     if (A.load_type == BLOCK_LINE and B.load_type == BLOCK_COLUMN) {
-#pragma omp parallel for
         for (auto i = 0; i < blocks_on_line; ++i)
             for (auto j = 0; j < blocks_on_line; ++j)
                 for (auto k = 0; k < blocks_on_line; ++k) {
@@ -297,7 +301,11 @@ int Matrix<block_size, T>::savetxt(const std::string & fname) {
         return EXIT_FAILURE;
 
     if (this->load_type == BLOCK_LINE) {
-
+#ifdef PARALLEL
+#ifndef OPERATION_PARALLEL
+#pragma omp parallel for
+#endif
+#endif
         for (auto i = 0; i < this->blocks_on_line; ++i)
             for (auto block_line = 0; block_line < block_size; ++block_line) {
                 for (auto j = 0; j < this->blocks_on_line; ++j)
@@ -313,6 +321,11 @@ int Matrix<block_size, T>::savetxt(const std::string & fname) {
     mat_file.close();
 
     return EXIT_SUCCESS;
+}
+
+template<unsigned long block_size, typename T>
+unsigned int Matrix<block_size, T>::get_size() {
+    return this->n;
 }
 
 #endif //BLOCK_MATRIX_MULTIPLICATION_MATRIX_H
