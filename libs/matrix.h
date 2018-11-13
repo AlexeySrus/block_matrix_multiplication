@@ -8,6 +8,7 @@
 #include <string>
 #include <fstream>
 #include <cmath>
+#include <omp.h>
 
 #define EPS 1E-5
 
@@ -272,6 +273,7 @@ Matrix<block_size, T> operator*(Matrix<block_size, T> & A, Matrix<block_size, T>
     unsigned long block_index = 0;
 
     if (A.load_type == BLOCK_LINE and B.load_type == BLOCK_COLUMN) {
+#pragma omp parallel for
         for (auto i = 0; i < blocks_on_line; ++i)
             for (auto j = 0; j < blocks_on_line; ++j)
                 for (auto k = 0; k < blocks_on_line; ++k) {

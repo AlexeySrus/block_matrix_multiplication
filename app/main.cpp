@@ -4,9 +4,7 @@
 #include "../libs/logging.h"
 #include <chrono>
 #include <fstream>
-
-#define BLOCK_SIZE 24
-#define DATA_TYPE double
+#include "config.h"
 
 using namespace std;
 using namespace chrono;
