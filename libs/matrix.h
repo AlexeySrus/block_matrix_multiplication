@@ -278,6 +278,11 @@ Matrix<block_size, T> operator*(Matrix<block_size, T> & A, Matrix<block_size, T>
     auto blocks_on_line = A.blocks_on_line;
 
     if (A.load_type == BLOCK_LINE and B.load_type == BLOCK_COLUMN) {
+#ifdef PARALLEL
+#ifndef OPERATION_PARALLEL
+#pragma omp parallel for
+#endif
+#endif
         for (auto i = 0; i < blocks_on_line; ++i)
             for (auto j = 0; j < blocks_on_line; ++j)
                 for (auto k = 0; k < blocks_on_line; ++k) {
@@ -301,11 +306,6 @@ int Matrix<block_size, T>::savetxt(const std::string & fname) {
         return EXIT_FAILURE;
 
     if (this->load_type == BLOCK_LINE) {
-#ifdef PARALLEL
-#ifndef OPERATION_PARALLEL
-#pragma omp parallel for
-#endif
-#endif
         for (auto i = 0; i < this->blocks_on_line; ++i)
             for (auto block_line = 0; block_line < block_size; ++block_line) {
                 for (auto j = 0; j < this->blocks_on_line; ++j)
