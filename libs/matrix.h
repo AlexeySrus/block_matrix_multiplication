@@ -52,7 +52,7 @@ public:
     friend Matrix<_block_size, _T> operator*(Matrix<_block_size, _T>&, Matrix<_block_size, _T>&);
 
     void zero();
-    unsigned int get_size();
+    unsigned long get_size();
 
     int savetxt(const std::string &);
 };
@@ -150,11 +150,6 @@ Matrix<block_size, T>::Matrix(
         }
 
         if (_load_type == BLOCK_LINE) {
-            for (auto i = 0; i < blocks.size(); i += blocks_on_line) {
-                this->blocks[i].set_type(SYMMETRIC);
-                this->blocks[i].postprocess();
-            }
-
             for (auto i = 0; i < blocks_on_line; ++i)
                 for (auto j = i + 1; j < blocks_on_line; ++j) {
                     if (this->blocks[i * blocks_on_line + j].get_type() != NON_USED) {
@@ -208,8 +203,11 @@ std::ostream &operator<<(std::ostream & os, const Matrix<block_size, T> & mat) {
 template<unsigned long block_size, typename T>
 void Matrix<block_size, T>::zero() {
     //memset(this->data, 0, sizeof(T)*block_size*block_size*this->used_blocks_count);
-    for (auto & b : this->blocks)
-        b.zero();
+#ifdef PARALLEL
+#pragma omp parallel for
+#endif
+    for (auto i = 0; i < this->blocks.size(); ++i)
+        this->blocks[i].zero();
 }
 
 template<unsigned long block_size, typename T>
@@ -272,8 +270,8 @@ Matrix<block_size, T> operator*(Matrix<block_size, T> & A, Matrix<block_size, T>
     auto res = Matrix<block_size, T>(A.n);
     res.zero();
 
-    auto * tmp_data = new T[block_size*block_size];
-    auto tmp_block = Block<block_size, T>(tmp_data);
+    //auto * tmp_data = new T[block_size*block_size];
+    //auto tmp_block = Block<block_size, T>(tmp_data);
 
     auto blocks_on_line = A.blocks_on_line;
 
@@ -283,7 +281,10 @@ Matrix<block_size, T> operator*(Matrix<block_size, T> & A, Matrix<block_size, T>
 #pragma omp parallel for
 #endif
 #endif
-        for (auto i = 0; i < blocks_on_line; ++i)
+        for (auto i = 0; i < blocks_on_line; ++i) {
+            auto *tmp_data = new T[block_size * block_size];
+            auto tmp_block = Block<block_size, T>(tmp_data);
+
             for (auto j = 0; j < blocks_on_line; ++j)
                 for (auto k = 0; k < blocks_on_line; ++k) {
                     A.blocks[i * blocks_on_line + k].multiply(B.blocks[j * blocks_on_line + k],
@@ -291,6 +292,9 @@ Matrix<block_size, T> operator*(Matrix<block_size, T> & A, Matrix<block_size, T>
                     res.blocks[i * blocks_on_line + j].add(tmp_block,
                                                            res.blocks[i * blocks_on_line + j]);
                 }
+
+            delete[] tmp_data;
+        }
 
         res.load_type = BLOCK_LINE;
     }
@@ -324,7 +328,7 @@ int Matrix<block_size, T>::savetxt(const std::string & fname) {
 }
 
 template<unsigned long block_size, typename T>
-unsigned int Matrix<block_size, T>::get_size() {
+unsigned long Matrix<block_size, T>::get_size() {
     return this->n;
 }
 
