@@ -156,6 +156,12 @@ Matrix<block_size, T>::Matrix(
                         this->log.error("Apply symmetric transform to used block");
                         return;
                     }
+
+                    if (this->blocks[j * blocks_on_line + i].get_type() == NON_USED) {
+                        this->log.error("Apply symmetric transform from unused block");
+                        return;
+                    }
+
                     this->blocks[i * blocks_on_line + j].set_type(SYMMETRIC);
                     this->blocks[i * blocks_on_line + j].set_data(
                             this->blocks[j * blocks_on_line + i].get_data_pointer());
@@ -270,8 +276,17 @@ Matrix<block_size, T> operator*(Matrix<block_size, T> & A, Matrix<block_size, T>
     auto res = Matrix<block_size, T>(A.n);
     res.zero();
 
-    //auto * tmp_data = new T[block_size*block_size];
-    //auto tmp_block = Block<block_size, T>(tmp_data);
+#ifndef PARALLEL
+    auto * tmp_data = new T[block_size*block_size];
+    auto tmp_block = Block<block_size, T>(tmp_data);
+#endif
+
+#ifdef PARALLEL
+#ifdef OPERATION_PARALLEL
+    auto * tmp_data = new T[block_size*block_size];
+    auto tmp_block = Block<block_size, T>(tmp_data);
+#endif
+#endif
 
     auto blocks_on_line = A.blocks_on_line;
 
@@ -282,9 +297,12 @@ Matrix<block_size, T> operator*(Matrix<block_size, T> & A, Matrix<block_size, T>
 #endif
 #endif
         for (auto i = 0; i < blocks_on_line; ++i) {
+#ifdef PARALLEL
+#ifndef OPERATION_PARALLEL
             auto *tmp_data = new T[block_size * block_size];
             auto tmp_block = Block<block_size, T>(tmp_data);
-
+#endif
+#endif
             for (auto j = 0; j < blocks_on_line; ++j)
                 for (auto k = 0; k < blocks_on_line; ++k) {
                     A.blocks[i * blocks_on_line + k].multiply(B.blocks[j * blocks_on_line + k],
@@ -293,7 +311,11 @@ Matrix<block_size, T> operator*(Matrix<block_size, T> & A, Matrix<block_size, T>
                                                            res.blocks[i * blocks_on_line + j]);
                 }
 
+#ifdef PARALLEL
+#ifndef OPERATION_PARALLEL
             delete[] tmp_data;
+#endif
+#endif
         }
 
         res.load_type = BLOCK_LINE;

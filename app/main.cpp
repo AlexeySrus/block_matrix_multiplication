@@ -37,7 +37,7 @@ int main(int argc, char**argv){
 
     cout << "TFLOPS: " << tflops_by_time(timer.count(), a.get_size()) << endl;
 
-    a.savetxt(argv[3]);
+    //a.savetxt(argv[3]);
 
     return EXIT_SUCCESS;
 }
