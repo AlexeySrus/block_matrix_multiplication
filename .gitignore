@@ -3,3 +3,4 @@ app/cmake-build-debug/
 data
 *.log
 BlockMatrixMultiplication
+compilation
