@@ -30,14 +30,11 @@ int main(int argc, char**argv){
     cout << "Average loading matrix time: " << timer.count() / 2 << " sec." << endl;
 
     start_time = steady_clock::now();
-    auto a = m*m2;
+    for (auto i = 0; i < EXPERIMENTS_COUNT; ++i)
+        auto a = m*m2;
     timer = steady_clock::now() - start_time;
 
-    cout << "Matrixes multiplication time: " << timer.count() << " sec." << endl;
-
-    cout << "TFLOPS: " << tflops_by_time(timer.count(), a.get_size()) << endl;
-
-    //a.savetxt(argv[3]);
+    cout << "Matrixes multiplication time: " << timer.count()/EXPERIMENTS_COUNT << " sec." << endl;
 
     return EXIT_SUCCESS;
 }

@@ -1,9 +1,10 @@
 #ifndef BLOCK_MATRIX_MULTIPLICATION_CONFIG_H
 #define BLOCK_MATRIX_MULTIPLICATION_CONFIG_H
-#define BLOCK_SIZE 24
-#define DATA_TYPE float
-//#define PARALLEL
+#define BLOCK_SIZE 720
+#define DATA_TYPE double
+#define PARALLEL
 #ifdef PARALLEL
 #define OPERATION_PARALLEL //if need block parallel, comment all line
 #endif
+#define EXPERIMENTS_COUNT 1
 #endif //BLOCK_MATRIX_MULTIPLICATION_CONFIG_H
